@@ -3,11 +3,9 @@ package fastq
 import (
 	"bufio"
 	"bytes"
-	"compress/gzip"
 	"errors"
 	"io"
 	"log"
-	"os"
 )
 
 func check(e error) {
