@@ -69,19 +69,19 @@ func (reads *Sequence) SetId1(id []byte) error          { reads.Id1 = id; return
 func (reads *Sequence) SetLetters(letters []byte) error { reads.Letters = letters; return nil }
 func (reads *Sequence) SetId2(id2 []byte) error         { reads.Id2 = id2; return nil }
 func (reads *Sequence) SetQuality(quality []byte) error { reads.Quality = quality; return nil }
-func (reads *Sequence) C2T() error {
+func (reads *Sequence) C2T() GArichseq Sequence{
 	cc := []byte("C")
 	tt := []byte("T")
 	ss2 := bytes.Replace(reads.Letters, cc, tt, -1)
 	reads.Letters = ss2
-	return nil
+	return reads
 }
-func (reads *Sequence) G2A() error {
+func G2A(reads *Sequence) GArichseq Sequence{
 	gg := []byte("G")
 	aa := []byte("A")
 	ss2 := bytes.Replace(reads.Letters, gg, aa, -1)
 	reads.Letters = ss2
-	return nil
+	return reads
 }
 
 func (r *sReader) Read() (Sequence, error) {
