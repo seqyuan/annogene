@@ -164,3 +164,58 @@ loop:
 
 func maybeID1(l []byte) bool { return len(l) > 0 && l[0] == '@' }
 func maybeID2(l []byte) bool { return len(l) > 0 && l[0] == '+' }
+
+// Fastq sequence format writer type.
+type Writer struct {
+	w io.Writer
+}
+
+// Returns a new fastq format writer using w.
+func NewWriter(w io.Writer) *Writer {
+	return &Writer{
+		w: w,
+	}
+}
+
+// Write a single sequence and return the number of bytes written and any error.
+func (w *Writer) Write(s Sequence) (n int, err error) {
+	var _n int
+
+	n, err = w.w.Write(s.Id1)
+	if n += _n; err != nil {
+		return
+	}
+	_n, err = w.w.Write([]byte{'\n'})
+	if n += _n; err != nil {
+		return
+	}
+
+	n, err = w.w.Write(s.Letters)
+	if n += _n; err != nil {
+		return
+	}
+	_n, err = w.w.Write([]byte{'\n'})
+	if n += _n; err != nil {
+		return
+	}
+
+	n, err = w.w.Write(s.Id2)
+	if n += _n; err != nil {
+		return
+	}
+	_n, err = w.w.Write([]byte{'\n'})
+	if n += _n; err != nil {
+		return
+	}
+
+	n, err = w.w.Write(s.Quality)
+	if n += _n; err != nil {
+		return
+	}
+	_n, err = w.w.Write([]byte{'\n'})
+	if n += _n; err != nil {
+		return
+	}
+
+	return
+}
