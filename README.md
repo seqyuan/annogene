@@ -1,6 +1,6 @@
 # annogene
 
-##Example
+## Example
 ```
 package main
 
