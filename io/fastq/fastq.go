@@ -86,6 +86,13 @@ func G2A(reads Sequence) Sequence {
 	return reads
 }
 
+func CutLen(reads Sequence, len int) Sequence {
+	reads.Letters = reads.Letters[0:len]
+	reads.Quality = reads.Quality[0:len]
+	return reads
+}
+
+
 func (r *sReader) Read() (Sequence, error) {
 	const (
 		id1 = iota
