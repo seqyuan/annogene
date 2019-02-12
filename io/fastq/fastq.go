@@ -176,8 +176,8 @@ loop:
 	return reads, err
 }
 
-func maybeID1(l []byte) bool { return len(l) > 0 && l[0] == '@' }
-func maybeID2(l []byte) bool { return len(l) > 0 && l[0] == '+' }
+func maybeID1(l []byte) bool { return len(l) > 0 && l[0] == "@" }
+func maybeID2(l []byte) bool { return len(l) > 0 && l[0] == "+" }
 
 // Fastq sequence format writer type.
 type Writer struct {
