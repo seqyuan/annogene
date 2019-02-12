@@ -42,6 +42,7 @@ func (s *Scanner) Next() bool {
 		return false
 	}
 	s.seq, s.err = s.r.Read()
+	fmt.Println(222,string(s.seq.Id1))
 	return s.err == nil
 }
 
@@ -54,7 +55,7 @@ func (s *Scanner) Error() error {
 }
 
 // Seq returns the most recent sequence read by a call to Next.
-func (s *Scanner) Seq() Sequence { return s.seq }
+func (s *Scanner) Seq() Sequence { fmt.Println(333,string(s.seq.Id1));return s.seq }
 
 // NewScanner returns a Scanner to read from r.
 func NewScanner(r Reader) *Scanner { return &Scanner{r: r} }
@@ -139,7 +140,6 @@ loop:
 		case state == id1 && maybeID1(line):
 			state = letters
 			err = reads.SetId1(line)
-			fmt.Println(string(reads.Id1))
 			check(err)
 
 		case state == id2 && maybeID2(line):
@@ -175,6 +175,7 @@ loop:
 
 	err = reads.SetQuality(line)
 	check(err)
+	fmt.Println(112,string(reads.Id1))
 	return reads, err
 }
 
