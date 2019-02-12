@@ -86,10 +86,17 @@ func G2A(reads Sequence) Sequence {
 	return reads
 }
 
-func CutLen(reads Sequence, len int) Sequence {
-	reads.Letters = reads.Letters[0:len]
-	reads.Quality = reads.Quality[0:len]
-	return reads
+func CutLen(reads Sequence, leng int)( reads2 Sequence){
+	reads2.Id1 = reads.Id1
+	if len(reads.Letters) > leng{
+		reads2.Letters = reads.Letters[0:leng]
+		reads2.Quality = reads.Quality[0:leng]
+	}else{
+		reads2.Letters = reads.Letters
+		reads2.Quality = reads.Quality
+	}
+	reads2.Id2 = reads.Id2
+	return 
 }
 
 
