@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"fmt"
 )
 
 func check(e error) {
