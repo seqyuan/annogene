@@ -139,7 +139,7 @@ loop:
 		case state == id1 && maybeID1(line):
 			state = letters
 			err = reads.SetId1(line)
-			fmt.Println(reads.Id1)
+			fmt.Println(string(reads.Id1))
 			check(err)
 
 		case state == id2 && maybeID2(line):
