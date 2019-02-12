@@ -42,7 +42,6 @@ func (s *Scanner) Next() bool {
 		return false
 	}
 	s.seq, s.err = s.r.Read()
-	fmt.Println(222,string(s.seq.Id1))
 	return s.err == nil
 }
 
@@ -55,7 +54,7 @@ func (s *Scanner) Error() error {
 }
 
 // Seq returns the most recent sequence read by a call to Next.
-func (s *Scanner) Seq() Sequence { fmt.Println(333,string(s.seq.Id1));return s.seq }
+func (s *Scanner) Seq() Sequence { return s.seq }
 
 // NewScanner returns a Scanner to read from r.
 func NewScanner(r Reader) *Scanner { return &Scanner{r: r} }
@@ -147,6 +146,7 @@ loop:
 			ii := append([]byte(nil), line...)
 			err = reads.SetId2(ii)
 			check(err)
+			fmt.Println(114,string(reads.Id1))
 
 		case state == letters && len(line) > 0:
 			if maybeID2(line) && (len(line) == 1 || bytes.Compare(reads.Id1[1:], line[1:]) == 0) {
@@ -158,7 +158,7 @@ loop:
 			check(err)
 
 			state = id2
-
+			fmt.Println(115,string(reads.Id1))
 		case state == quality:
 			if len(line) == 0 && len(reads.Letters) != 0 {
 				continue
@@ -166,13 +166,14 @@ loop:
 			break loop
 		}
 		line = line[:0]
+		fmt.Println(111111111,string(line))
 	}
 
 	line = bytes.Join(bytes.Fields(line), nil)
 	if len(line) != len(reads.Letters) {
 		return reads, errors.New("fastq: sequence/quality length mismatch")
 	}
-
+	fmt.Println(113,string(reads.Id1))
 	err = reads.SetQuality(line)
 	check(err)
 	fmt.Println(112,string(reads.Id1))
