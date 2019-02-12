@@ -136,6 +136,7 @@ loop:
 		line = bytes.TrimSpace(line)
 		switch {
 		case state == id1 && maybeID1(line):
+			fmt.Println(string(line))
 			state = letters
 			err = reads.SetId1(line)
 			check(err)
