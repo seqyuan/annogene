@@ -146,9 +146,10 @@ loop:
 			ii := append([]byte(nil), line...)
 			err = reads.SetId2(ii)
 			check(err)
-			fmt.Println(114,string(reads.Id1))
+			fmt.Println(113,string(reads.Id1))
 
 		case state == letters && len(line) > 0:
+			fmt.Println(111,string(reads.Id1))
 			if maybeID2(line) && (len(line) == 1 || bytes.Compare(reads.Id1[1:], line[1:]) == 0) {
 				state = quality
 				break
@@ -158,7 +159,6 @@ loop:
 			check(err)
 
 			state = id2
-			fmt.Println(115,string(reads.Id1))
 		case state == quality:
 			if len(line) == 0 && len(reads.Letters) != 0 {
 				continue
@@ -166,17 +166,14 @@ loop:
 			break loop
 		}
 		line = line[:0]
-		fmt.Println(111111111,string(line))
 	}
 
 	line = bytes.Join(bytes.Fields(line), nil)
 	if len(line) != len(reads.Letters) {
 		return reads, errors.New("fastq: sequence/quality length mismatch")
 	}
-	fmt.Println(113,string(reads.Id1))
 	err = reads.SetQuality(line)
 	check(err)
-	fmt.Println(112,string(reads.Id1))
 	return reads, err
 }
 
