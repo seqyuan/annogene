@@ -116,9 +116,9 @@ func (r *sReader) Read() (Sequence, error) {
 		err        error
 		reads      Sequence
 	)
-
+	fmt.Println(001,string(reads.Id1))
 loop:
-
+	fmt.Println(011,string(reads.Id1))
 	for {
 		fmt.Println(111,string(reads.Id1))
 		buff, isPrefix, err = r.r.ReadLine()
