@@ -120,7 +120,7 @@ func (r *sReader) Read() (Sequence, error) {
 loop:
 
 	for {
-
+		fmt.Println(111,string(reads.Id1))
 		buff, isPrefix, err = r.r.ReadLine()
 		if err != nil {
 			if state == quality && err == io.EOF {
@@ -149,7 +149,7 @@ loop:
 			fmt.Println(113,string(reads.Id1))
 
 		case state == letters && len(line) > 0:
-			fmt.Println(111,string(reads.Id1))
+			fmt.Println(112,string(reads.Id1))
 			if maybeID2(line) && (len(line) == 1 || bytes.Compare(reads.Id1[1:], line[1:]) == 0) {
 				state = quality
 				break
