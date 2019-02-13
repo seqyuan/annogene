@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"log"
-	"fmt"
 )
 
 func check(e error) {
@@ -128,9 +127,7 @@ loop:
 			}
 			return reads, err
 		}
-		fmt.Println(111,string(reads.Id1))
 		line = append(line, buff...)
-		fmt.Println(121,string(reads.Id1))
 		if isPrefix {
 			continue
 		}
