@@ -174,6 +174,7 @@ loop:
 	}
 	err = reads.SetQuality(line)
 	check(err)
+	fmt.Println(114,string(reads.Id1))
 	return reads, err
 }
 
