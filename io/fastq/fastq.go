@@ -66,10 +66,10 @@ type Sequence struct {
 	Quality []byte
 }
 
-func (reads *Sequence) SetId1(id []byte) error          { reads.Id1 = id; return nil }
-func (reads *Sequence) SetLetters(letters []byte) error { reads.Letters = letters; return nil }
-func (reads *Sequence) SetId2(id2 []byte) error         { reads.Id2 = id2; return nil }
-func (reads *Sequence) SetQuality(quality []byte) error { reads.Quality = quality; return nil }
+func (reads *Sequence) SetId1(id []byte) error          { ID := make([]byte, len(id)); copy(ID, id); reads.Id1 = ID; return nil }
+func (reads *Sequence) SetLetters(letters []byte) error { LETTERS := make([]byte, len(letters)); copy(LETTERS, letters); reads.Letters = LETTERS; return nil }
+func (reads *Sequence) SetId2(id2 []byte) error         { ID2 := make([]byte, len(id2)); copy(ID2, id2); reads.Id2 = ID2; return nil }
+func (reads *Sequence) SetQuality(quality []byte) error { QU := make([]byte, len(quality)); copy(QU, quality); reads.Quality = QU; return nil }
 
 func C2T(reads Sequence) Sequence {
 	cc := []byte("C")
@@ -120,7 +120,6 @@ func (r *sReader) Read() (Sequence, error) {
 loop:
 
 	for {
-		fmt.Println(111,string(reads.Id1))
 		buff, isPrefix, err = r.r.ReadLine()
 		if err != nil {
 			if state == quality && err == io.EOF {
@@ -129,10 +128,9 @@ loop:
 			}
 			return reads, err
 		}
-		fmt.Println(121,string(reads.Id1))
-
+		fmt.Println(111,string(reads.Id1))
 		line = append(line, buff...)
-		fmt.Println(131,string(reads.Id1))
+		fmt.Println(121,string(reads.Id1))
 		if isPrefix {
 			continue
 		}
@@ -149,10 +147,8 @@ loop:
 			ii := append([]byte(nil), line...)
 			err = reads.SetId2(ii)
 			check(err)
-			fmt.Println(113,string(reads.Id1))
 
 		case state == letters && len(line) > 0:
-			fmt.Println(112,string(reads.Id1))
 			if maybeID2(line) && (len(line) == 1 || bytes.Compare(reads.Id1[1:], line[1:]) == 0) {
 				state = quality
 				break
@@ -177,7 +173,6 @@ loop:
 	}
 	err = reads.SetQuality(line)
 	check(err)
-	fmt.Println(114,string(reads.Id1))
 	return reads, err
 }
 
