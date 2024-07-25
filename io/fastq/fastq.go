@@ -6,6 +6,9 @@ import (
 	"errors"
 	"io"
 	"log"
+	"strings"
+	"fmt"
+	"strconv"
 )
 
 func check(e error) {
@@ -121,7 +124,6 @@ func CutLen(reads Sequence, leng int) (reads2 Sequence) {
 
 func ExtractRegion(reads Sequence, regions string) (reads2 Sequence) {
 	reads2.Id1 = reads.Id1
-	var subStrings []string
 
 	var Letters []byte
 	var Quality []byte
@@ -144,8 +146,8 @@ func ExtractRegion(reads Sequence, regions string) (reads2 Sequence) {
 		}
 
 		// 提取子字符串并添加到切片中
-		Letters = append(subStrings, reads.Letters[start:end])
-		Quality = append(subStrings, reads.Quality[start:end])
+		Letters = append(Letters, reads.Letters[start:end])
+		Quality = append(Quality, reads.Quality[start:end])
 	}
 
 	// 将所有子字符串拼接起来
