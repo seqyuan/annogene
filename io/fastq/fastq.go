@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"strings"
-	"fmt"
+	//"fmt"
 	"strconv"
 )
 
@@ -136,18 +136,18 @@ func ExtractRegion(reads Sequence, regions string) (reads2 Sequence) {
 		//	return "", fmt.Errorf("invalid region format: %s", pair)
 		//}
 
-		start, err := strconv.Atoi(indexRange[0])
+		start, _ := strconv.Atoi(indexRange[0])
 		//if err != nil {
 		//	return "", err
 		//}
-		end, err := strconv.Atoi(indexRange[1])
+		end, _ := strconv.Atoi(indexRange[1])
 		//if err != nil {
 		//	return "", err
 		//}
 
 		// 提取子字符串并添加到切片中
 		Letters = append(Letters, reads.Letters[start:end]...)
-		Quality = append(LQuality, reads.Quality[start:end]...)
+		Quality = append(Quality, reads.Quality[start:end]...)
 	}
 
 	// 将所有子字符串拼接起来
