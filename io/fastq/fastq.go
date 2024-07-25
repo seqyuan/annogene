@@ -132,27 +132,27 @@ func ExtractRegion(reads Sequence, regions string) (reads2 Sequence) {
 	for _, pair := range regionPairs {
 		// 分割每个区域的起始和结束索引
 		indexRange := strings.Split(pair, ":")
-		if len(indexRange) != 2 {
-			return "", fmt.Errorf("invalid region format: %s", pair)
-		}
+		//if len(indexRange) != 2 {
+		//	return "", fmt.Errorf("invalid region format: %s", pair)
+		//}
 
 		start, err := strconv.Atoi(indexRange[0])
-		if err != nil {
-			return "", err
-		}
+		//if err != nil {
+		//	return "", err
+		//}
 		end, err := strconv.Atoi(indexRange[1])
-		if err != nil {
-			return "", err
-		}
+		//if err != nil {
+		//	return "", err
+		//}
 
 		// 提取子字符串并添加到切片中
-		Letters = append(Letters, reads.Letters[start:end])
-		Quality = append(Quality, reads.Quality[start:end])
+		Letters = append(Letters, reads.Letters[start:end]...)
+		Quality = append(LQuality, reads.Quality[start:end]...)
 	}
 
 	// 将所有子字符串拼接起来
-	reads2.Letters = strings.Join(Letters, "")
-	reads2.Quality = strings.Join(Quality, "")
+	reads2.Letters = Letters
+	reads2.Quality = Quality
 	reads2.Id2 = reads.Id2
 
 	return
