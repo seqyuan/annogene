@@ -65,10 +65,30 @@ type Sequence struct {
 	Quality []byte
 }
 
-func (reads *Sequence) SetId1(id []byte) error          { ID := make([]byte, len(id)); copy(ID, id); reads.Id1 = ID; return nil }
-func (reads *Sequence) SetLetters(letters []byte) error { LETTERS := make([]byte, len(letters)); copy(LETTERS, letters); reads.Letters = LETTERS; return nil }
-func (reads *Sequence) SetId2(id2 []byte) error         { ID2 := make([]byte, len(id2)); copy(ID2, id2); reads.Id2 = ID2; return nil }
-func (reads *Sequence) SetQuality(quality []byte) error { QU := make([]byte, len(quality)); copy(QU, quality); reads.Quality = QU; return nil }
+func (reads *Sequence) SetId1(id []byte) error {
+	ID := make([]byte, len(id))
+	copy(ID, id)
+	reads.Id1 = ID
+	return nil
+}
+func (reads *Sequence) SetLetters(letters []byte) error {
+	LETTERS := make([]byte, len(letters))
+	copy(LETTERS, letters)
+	reads.Letters = LETTERS
+	return nil
+}
+func (reads *Sequence) SetId2(id2 []byte) error {
+	ID2 := make([]byte, len(id2))
+	copy(ID2, id2)
+	reads.Id2 = ID2
+	return nil
+}
+func (reads *Sequence) SetQuality(quality []byte) error {
+	QU := make([]byte, len(quality))
+	copy(QU, quality)
+	reads.Quality = QU
+	return nil
+}
 
 func C2T(reads Sequence) Sequence {
 	cc := []byte("C")
@@ -86,19 +106,55 @@ func G2A(reads Sequence) Sequence {
 	return reads
 }
 
-func CutLen(reads Sequence, leng int)( reads2 Sequence){
+func CutLen(reads Sequence, leng int) (reads2 Sequence) {
 	reads2.Id1 = reads.Id1
-	if len(reads.Letters) > leng{
+	if len(reads.Letters) > leng {
 		reads2.Letters = reads.Letters[0:leng]
 		reads2.Quality = reads.Quality[0:leng]
-	}else{
+	} else {
 		reads2.Letters = reads.Letters
 		reads2.Quality = reads.Quality
 	}
 	reads2.Id2 = reads.Id2
-	return 
+	return
 }
 
+func ExtractRegion(reads Sequence, regions string) (reads2 Sequence) {
+	reads2.Id1 = reads.Id1
+	var subStrings []string
+
+	var Letters []byte
+	var Quality []byte
+	// 分割区域字符串，获取每个区域的起始和结束索引
+	regionPairs := strings.Split(regions, ",")
+	for _, pair := range regionPairs {
+		// 分割每个区域的起始和结束索引
+		indexRange := strings.Split(pair, ":")
+		if len(indexRange) != 2 {
+			return "", fmt.Errorf("invalid region format: %s", pair)
+		}
+
+		start, err := strconv.Atoi(indexRange[0])
+		if err != nil {
+			return "", err
+		}
+		end, err := strconv.Atoi(indexRange[1])
+		if err != nil {
+			return "", err
+		}
+
+		// 提取子字符串并添加到切片中
+		Letters = append(subStrings, reads.Letters[start:end])
+		Quality = append(subStrings, reads.Quality[start:end])
+	}
+
+	// 将所有子字符串拼接起来
+	reads2.Letters = strings.Join(Letters, "")
+	reads2.Quality = strings.Join(Quality, "")
+	reads2.Id2 = reads.Id2
+
+	return
+}
 
 func (r *sReader) Read() (Sequence, error) {
 	const (
