@@ -1,152 +1,305 @@
-# annogene
+# Annogene
 
-## Example
+[![Go Version](https://img.shields.io/github/go-mod/go-version/seqyuan/annogene)](https://golang.org)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/seqyuan/annogene)](https://goreportcard.com/report/github.com/seqyuan/annogene)
+
+Annogene is a Go package for processing and transforming FASTQ format files. It provides functionality for base conversion, sequence length cutting, and region extraction from biological sequences.
+
+## Features
+
+- **FASTQ Reading/Writing**: Efficient parsing and writing of FASTQ format files
+- **Base Conversion**: Convert C to T or G to A bases in sequences
+- **Sequence Truncation**: Cut sequences to specified lengths from the 5' end
+- **Region Extraction**: Extract specific regions from sequences
+- **Memory Efficient**: Uses byte slices for optimal performance
+- **Error Handling**: Comprehensive error handling with detailed error messages
+
+## Installation
+
+```bash
+go get github.com/seqyuan/annogene
 ```
+
+## Quick Start
+
+```go
 package main
 
 import (
-	"compress/gzip"
-	"flag"
-	"fmt"
-	"github.com/seqyuan/annogene/io/fastq"
-	"log"
-	"os"
-	"path/filepath"
+    "os"
+    "github.com/seqyuan/annogene/io/fastq"
 )
 
-func check(e error) {
-	if e != nil {
-		log.Fatal(e)
-	}
-}
-
-func usage() {
-	fmt.Printf("\nProgram: BiTransformFastQ (Tools for FASTQ C to T or G to A Transform)\nVersion: 0.1.1-20170630\n\nUsage:\tBiTransformFastQ -inFQ sample1_P_R1.fq.gz -TF C2T -o /abspath/outdir\n\n\tThe out file is /abspath/outdir/sample1_P_R1.fq.gz_C2T.fq.gz\n")
-	fmt.Printf("Command:\n")
-
-	fmt.Printf("    -inFQ          faseq.gz\n")
-	fmt.Printf("    -TF            C2T or G2A\n")
-	fmt.Printf("    -o             outdir\n")
-	os.Exit(1)
-}
-
 func main() {
-	infq := flag.String("inFQ", "", "fastq.gz")
-	transf := flag.String("TF", "", "C2T / G2A")
-	outdir := flag.String("o", "", "outdir")
-	flag.Parse()
-	if *infq == "" || *transf == "" || *outdir == "" {
-		usage()
-	}
+    // Open a FASTQ file
+    file, err := os.Open("sample.fastq")
+    if err != nil {
+        panic(err)
+    }
+    defer file.Close()
 
-	file, err := os.Open(*infq)
-	check(err)
-	gz, err := gzip.NewReader(file)
-	check(err)
+    // Create a reader
+    reader := fastq.NewReader(file)
+    scanner := fastq.NewScanner(reader)
 
-	defer file.Close()
-	defer gz.Close()
+    // Process sequences
+    for scanner.Next() {
+        seq := scanner.Seq()
+        
+        // Convert C to T
+        converted := fastq.C2T(seq)
+        
+        // Process the converted sequence...
+    }
 
-	r := fastq.NewReader(gz)
-	sc := fastq.NewScanner(r)
-
-	outfqgz := fmt.Sprintf("%s/%s_%s.fq.gz", *outdir, filepath.Base(*infq), *transf)
-
-	fo, err := os.OpenFile(outfqgz, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0660)
-	check(err)
-	ogz := gzip.NewWriter(fo)
-	check(err)
-
-	defer fo.Close()
-	defer ogz.Close()
-
-	w := fastq.NewWriter(ogz)
-
-	switch *transf {
-	case "C2T":
-		for sc.Next() {
-			CTreads := fastq.C2T(sc.Seq())
-			_, eer := w.Write(CTreads)
-			check(eer)
-		}
-		if err := sc.Error(); err != nil {
-			log.Fatalf("failed to read fastq: %v", err)
-		}
-	case "G2A":
-		for sc.Next() {
-			GAreads := fastq.G2A(sc.Seq())
-			_, eer := w.Write(GAreads)
-			check(eer)
-		}
-		if err := sc.Error(); err != nil {
-			log.Fatalf("failed to read fastq: %v", err)
-		}
-	default:
-		usage()
-	}
+    if err := scanner.Error(); err != nil {
+        panic(err)
+    }
 }
 ```
 
+## API Reference
 
+### Core Types
+
+#### Sequence
+```go
+type Sequence struct {
+    ID1     []byte // First identifier line (starts with @)
+    Letters []byte // Sequence letters
+    ID2     []byte // Second identifier line (starts with +)
+    Quality []byte // Quality scores
+}
 ```
+
+#### Reader Interface
+```go
+type Reader interface {
+    Read() (Sequence, error)
+}
+```
+
+#### Writer Interface
+```go
+type Writer interface {
+    Write(s Sequence) (n int, err error)
+}
+```
+
+### Functions
+
+#### Base Conversion
+- `C2T(seq Sequence) Sequence` - Converts all C bases to T bases
+- `G2A(seq Sequence) Sequence` - Converts all G bases to A bases
+
+#### Sequence Manipulation
+- `CutLen(seq Sequence, length int) Sequence` - Truncates sequence to specified length
+- `ExtractRegion(seq Sequence, regions string) (Sequence, error)` - Extracts specified regions
+
+#### Utility Functions
+- `NewReader(r io.Reader) Reader` - Creates a new FASTQ reader
+- `NewWriter(w io.Writer) Writer` - Creates a new FASTQ writer
+- `NewScanner(r Reader) *Scanner` - Creates a new scanner for reading sequences
+
+### Scanner
+```go
+type Scanner struct {
+    // ... internal fields
+}
+
+func (s *Scanner) Next() bool      // Advance to next sequence
+func (s *Scanner) Seq() Sequence   // Get current sequence
+func (s *Scanner) Error() error    // Get any error encountered
+```
+
+## Examples
+
+### Base Transformation Tool
+
+```go
 package main
 
 import (
-	"flag"
-	"fmt"
-	"github.com/seqyuan/annogene/io/fastq"
-	"log"
-	"os"
-	)
-
-func check(e error) {
-	if e != nil {
-		log.Fatal(e)
-	}
-}
-
-func usage() {
-	fmt.Printf("\nProgram: cut fastq length\n")
-	fmt.Printf("Command:\n")
-	fmt.Printf("    -inFQ          in.faseq\n")
-	fmt.Printf("    -c             cut length from 5'\n")
-	fmt.Printf("    -o             outfile.fastq\n")
-	os.Exit(1)
-}
+    "compress/gzip"
+    "flag"
+    "fmt"
+    "github.com/seqyuan/annogene/io/fastq"
+    "log"
+    "os"
+    "path/filepath"
+)
 
 func main() {
-	infq := flag.String("inFQ", "", "test.fastq")
-	cutLen := flag.Int("c", 30, "30 or other int umber")
-	outfile := flag.String("o", "", "outfile.fastq")
-	flag.Parse()
-	if *infq == "" || *outfile == "" {
-		usage()
-	}
+    infq := flag.String("inFQ", "", "Input FASTQ file")
+    transf := flag.String("TF", "", "Transformation: C2T or G2A")
+    outdir := flag.String("o", "", "Output directory")
+    flag.Parse()
 
-	file, err := os.Open(*infq)
-	check(err)
+    if *infq == "" || *transf == "" || *outdir == "" {
+        flag.Usage()
+        os.Exit(1)
+    }
 
-	defer file.Close()
+    // Open input file
+    file, err := os.Open(*infq)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
 
-	r := fastq.NewReader(file)
-	sc := fastq.NewScanner(r)
+    // Handle gzipped files
+    var reader io.Reader = file
+    if filepath.Ext(*infq) == ".gz" {
+        gz, err := gzip.NewReader(file)
+        if err != nil {
+            log.Fatal(err)
+        }
+        defer gz.Close()
+        reader = gz
+    }
 
-	fo, err := os.OpenFile(*outfile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0660)
-	check(err)
+    // Create FASTQ reader and scanner
+    r := fastq.NewReader(reader)
+    scanner := fastq.NewScanner(r)
 
-	defer fo.Close()
+    // Prepare output
+    outPath := fmt.Sprintf("%s/%s_%s.fastq", *outdir, 
+        filepath.Base(*infq), *transf)
+    outFile, err := os.Create(outPath)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer outFile.Close()
 
-	w := fastq.NewWriter(fo)
+    writer := fastq.NewWriter(outFile)
 
-	for sc.Next() {
-		CuTreads := fastq.CutLen(sc.Seq(), *cutLen)
-		_, eer := w.Write(CuTreads)
-		check(eer)
-		}
-	if err := sc.Error(); err != nil {
-		log.Fatalf("failed to read fastq: %v", err)
-	}
+    // Process sequences
+    switch *transf {
+    case "C2T":
+        for scanner.Next() {
+            converted := fastq.C2T(scanner.Seq())
+            if _, err := writer.Write(converted); err != nil {
+                log.Printf("Failed to write sequence: %v", err)
+            }
+        }
+    case "G2A":
+        for scanner.Next() {
+            converted := fastq.G2A(scanner.Seq())
+            if _, err := writer.Write(converted); err != nil {
+                log.Printf("Failed to write sequence: %v", err)
+            }
+        }
+    default:
+        log.Fatalf("Unknown transformation: %s", *transf)
+    }
 
+    if err := scanner.Error(); err != nil {
+        log.Fatalf("Failed to read FASTQ: %v", err)
+    }
 }
-
 ```
+
+### Sequence Length Cutting Tool
+
+```go
+package main
+
+import (
+    "flag"
+    "github.com/seqyuan/annogene/io/fastq"
+    "log"
+    "os"
+)
+
+func main() {
+    infq := flag.String("inFQ", "", "Input FASTQ file")
+    cutLen := flag.Int("c", 30, "Cut length from 5' end")
+    outfile := flag.String("o", "", "Output FASTQ file")
+    flag.Parse()
+
+    if *infq == "" || *outfile == "" {
+        flag.Usage()
+        os.Exit(1)
+    }
+
+    // Open input file
+    file, err := os.Open(*infq)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    // Create reader and scanner
+    reader := fastq.NewReader(file)
+    scanner := fastq.NewScanner(reader)
+
+    // Create output file
+    outFile, err := os.Create(*outfile)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer outFile.Close()
+
+    writer := fastq.NewWriter(outFile)
+
+    // Process sequences
+    for scanner.Next() {
+        cutSeq := fastq.CutLen(scanner.Seq(), *cutLen)
+        if _, err := writer.Write(cutSeq); err != nil {
+            log.Printf("Failed to write sequence: %v", err)
+        }
+    }
+
+    if err := scanner.Error(); err != nil {
+        log.Fatalf("Failed to read FASTQ: %v", err)
+    }
+}
+```
+
+## Development
+
+### Prerequisites
+- Go 1.21 or later
+
+### Building
+```bash
+make build
+```
+
+### Testing
+```bash
+make test
+```
+
+### Code Formatting
+```bash
+make format
+```
+
+### Linting
+```bash
+make lint
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Version History
+
+- **v0.0.2** - Current version with improved error handling and code structure
+- **v0.0.1** - Initial release
+
+## Acknowledgments
+
+This package was developed for bioinformatics applications and sequence analysis workflows.
